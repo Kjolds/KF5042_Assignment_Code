@@ -35,9 +35,9 @@ percentErrors = sum(tind ~= yind)/numel(tind);
 % view(net)
 
 % Plots
-%figure, plotperform(tr)
-%figure, plottrainstate(tr)
+figure, plotperform(tr)
+figure, plottrainstate(tr)
 %figure, ploterrhist(e)
-%figure, plotconfusion(t,y)
+figure, plotconfusion(t,y)
 %figure, plotroc(t,y)
 
