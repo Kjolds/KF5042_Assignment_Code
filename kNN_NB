@@ -1,0 +1,79 @@
+clc; clear;
+
+% Loading the training data into a matrix and a table
+fullDataMatrix = readmatrix('heartDisease.csv');
+
+%% corrcoef to improve results?
+% heatmap(corrcoef(fullDataMatrix))
+%%
+
+% Creating the classification labels (0 for no disease, 1 for disease)
+yLabel = fullDataMatrix(:,14);
+
+% 80 percent split on the data for testing and training
+cv = cvpartition(yLabel, 'HoldOut', .2);
+
+% Creating the test data set and the training data set
+% using the CV created in the line above
+xtrain = fullDataMatrix(cv.training, :);
+xtrain(:,14) = [];
+ytrain = yLabel(cv.training, 1);
+
+xtest = fullDataMatrix(cv.test, :);
+xtest(:,14) = [];
+ytest = yLabel(cv.test, 1);
+
+% The number of times to run a model  test
+k = 10;
+
+% Creating the kNN model using the function
+% then running it with the desired data and k amount of times
+mdl_knn = createKnnModel(xtrain, ytrain);
+knn_results = runKnn(mdl_knn, xtest, ytest, k);
+
+% Creating the Naive Bayes model using the function
+% then running it with the desired data and k amount of times
+mdl_naive = createNaiveModel(xtrain, ytrain);
+naive_results = runNaiveModel(mdl_naive, xtest, ytest, k);
+
+% Printing the RMSE values to the command window
+fprintf('Average kNN RMSE: %.4f\n', mean(knn_results));
+fprintf('Average Naive Bayes RMSE: %.4f\n', mean(naive_results));
+
+% Plotting the results of each run, for both kNN and Naive Bayes
+figure, plot(knn_results), title('kNN MSE Scores'), xlabel('Run Number'), ylabel('MSE Score');
+figure, plot(naive_results), title('Naive Bayes MSE Scores'), xlabel('Run Number'), ylabel('MSE Score');
+
+%%%%%%%%%%%%%%%%%%%%%
+%% Model functions %%
+%%%%%%%%%%%%%%%%%%%%%
+
+% Create the kNN model
+function mdl_knn = createKnnModel(x, y)
+    mdl_knn = fitcknn(x, y);
+end
+
+% Run the kNN model k times
+function knn_results = runKnn(Mdl, x, y, k)
+    for n=1:k
+        knn_pred = predict(Mdl, x);
+        knn_mse = calculateMSE(y, knn_pred);
+        knn_results(1,n) = knn_mse;
+        x = x(randperm(size(x, 1)), :);
+    end
+end
+
+% Create the Naive Bayes model
+function mdl_naive = createNaiveModel(x, y)
+    mdl_naive = fitcnb(x, y);
+end
+
+% Run the Naive Bayes model k times
+function naive_results = runNaiveModel(Mdl, x, y, k)
+    for n=1:k
+        naive_pred = predict(Mdl, x);
+        naive_mse = calculateMSE(y, naive_pred);
+        naive_results(1,n) = naive_mse;
+        x = x(randperm(size(x, 1)), :);
+    end
+end
