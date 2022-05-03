@@ -1,4 +1,4 @@
-# KF5042_Assign_Code
+# KF5042 Assignment
 
 The NN_Script file shows all the script that was used in MATLAB to train and test the Neural Network on the Heart Disease dataset.
   As well as all the code to produce the graphs for analysis.
